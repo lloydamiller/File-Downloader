@@ -1,6 +1,7 @@
 # Project Files #
 #################
 .idea/
+.gitignore
 
 
 # Compiled source #
