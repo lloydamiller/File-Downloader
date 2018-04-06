@@ -6,6 +6,7 @@ import os
 import requests
 import ssl
 import urllib3
+from urllib.parse import urljoin
 import shutil
 import sys
 
@@ -98,21 +99,6 @@ def parse_webpage_for_links(response):
     return file_links
 
 
-# Determines absolute URL for relative URLs in link
-def determine_absolute_url(url, href):
-    if not href.startswith('http'):
-        dirs_up = 0
-        while href.startswith('..'):
-            dirs_up += 1
-            href = href[3:]
-        while dirs_up != 0:
-            url = url.rsplit('/',1)[0]
-            dirs_up -=1
-        return url + '/' + href
-    else:
-        return href
-
-
 # takes a URL and downloads tries to download an associated file to the specified folder
 def save_file(file_url, download_folder = 'files'):
 
@@ -200,7 +186,11 @@ Provide a link and this script will download all linked files, or links of a spe
     print('[*] Preparing to download %i files.' % len(download_link_list))
     saved_files = []
     for link in download_link_list:
-        link = determine_absolute_url(page, link)
+
+        # fixes relative URLs
+        if not link.startswith('http'):
+            link = urljoin(page, link)
+
         saved_files.append(save_file(link))
 
     print('[*] Saved %i files.' % len(saved_files))
